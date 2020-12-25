@@ -13,8 +13,12 @@
 #include <vcl/dllapi.h>
 #include <vector>
 #include <memory>
-#include <boost/functional/hash.hpp>
 
+/** Container for the binary data, which responsiility is to manage the
+ *  make it as simple as possible to manage the binary data. The binary
+ *  data can be anything, but typically it is a in-memory data from
+ *  files (i.e. files of graphic formats).
+ */
 class VCL_DLLPUBLIC BinaryDataContainer final
 {
 private:
@@ -22,18 +26,9 @@ private:
     std::shared_ptr<std::vector<sal_uInt8>> mpData;
 
 public:
-    explicit BinaryDataContainer() {}
-
-    explicit BinaryDataContainer(size_t nSize)
-        : mpData(std::make_shared<std::vector<sal_uInt8>>(nSize))
-    {
-    }
-
-    explicit BinaryDataContainer(const sal_uInt8* pData, size_t nSize)
-        : mpData(std::make_shared<std::vector<sal_uInt8>>(nSize))
-    {
-        std::copy(pData, pData + nSize, mpData->data());
-    }
+    explicit BinaryDataContainer();
+    explicit BinaryDataContainer(size_t nSize);
+    explicit BinaryDataContainer(const sal_uInt8* pData, size_t nSize);
 
     explicit BinaryDataContainer(const BinaryDataContainer& rBinaryDataContainer) = default;
     explicit BinaryDataContainer(BinaryDataContainer&& rBinaryDataContainer) = default;
@@ -41,19 +36,14 @@ public:
     BinaryDataContainer& operator=(BinaryDataContainer&& rBinaryDataContainer) = default;
 
     size_t getSize() const { return mpData ? mpData->size() : 0; }
-
     bool isEmpty() const { return mpData ? mpData->empty() : true; }
-
     const sal_uInt8* getData() const { return mpData ? mpData->data() : nullptr; }
 
-    size_t calculateHash() const
-    {
-        size_t nSeed = 0;
-        boost::hash_combine(nSeed, getSize());
-        for (sal_uInt8 const& rByte : *mpData)
-            boost::hash_combine(nSeed, rByte);
-        return nSeed;
-    }
+    size_t calculateHash() const;
+
+    auto cbegin() { return mpData->cbegin(); }
+
+    auto cend() { return mpData->cend(); }
 };
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
